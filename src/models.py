@@ -36,22 +36,12 @@ class Price:
             logging.error(e)
 
     @classmethod
-    def get_tasks(cls):
-
-        # conn = Pool.get()
-        # with conn.cursor() as cur:
-        #     cur.execute("show databases;")
-        #     value = cur.fetchone()
-        #     print(value)
-        # # async with conn.cursor() as cur:
-        # #     await cur.execute("show databases;")
-        # #     value = await cur.fetchone()
-        # #     print(value)
-        # # async with Pool.get() as conn:
-        # #     async with conn.cursor() as cur:
-        # #         await cur.execute("show databases;")
-        # #         value = await cur.fetchone()
-        # #         print(value)
+    async def get_tasks(cls):
+        async with Price.pool.get() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute("show databases;")
+                value = await cur.fetchall()
+                print(value)
         # # 获取所有车型别名
         tasks = [
             "benben", "aodia5", "aodia1", "aodir8", "aerfaluomioustelvio",
