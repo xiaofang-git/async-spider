@@ -1,7 +1,7 @@
 from log import logging
 import aiohttp
 from scrapy.selector import Selector
-from mysql import Pool
+# from mysql import Pool
 import math
 
 
@@ -20,7 +20,7 @@ class Price:
         # 从数据库获取当前车型价格的总数量    p2
         # 需要抓取的数量                  p1 * 10 - p2
         # 需要抓取的页数                  (p1 * 10 - p2) / 10  向上取整
-        
+
         from_db = 0
         from_html = int(await self.__pages_num) * 10
         need = math.ceil((from_html - from_db) / 10)
@@ -37,7 +37,7 @@ class Price:
 
     @classmethod
     def get_tasks(cls):
-        
+
         # conn = Pool.get()
         # with conn.cursor() as cur:
         #     cur.execute("show databases;")
@@ -53,7 +53,10 @@ class Price:
         # #         value = await cur.fetchone()
         # #         print(value)
         # # 获取所有车型别名
-        tasks = ["benben", "aodia5", "aodia1", "aodir8", "aerfaluomioustelvio", "zagato", "jilidihaogs"]
+        tasks = [
+            "benben", "aodia5", "aodia1", "aodir8", "aerfaluomioustelvio",
+            "zagato", "jilidihaogs"
+        ]
 
         try:
             pass
@@ -68,10 +71,18 @@ class Price:
         for page in range(pages):
             text = await self.bare_car_price(page + 1)
             dom = Selector(text=text)
-            mnames = dom.xpath("//div[@class='big-img-box']//div[@class='title']/text()").extract()
-            results = dom.xpath("//div[@class='big-img-box']//em/text()").extract()
+            mnames = dom.xpath(
+                "//div[@class='big-img-box']//div[@class='title']/text()"
+            ).extract()
+            results = dom.xpath(
+                "//div[@class='big-img-box']//em/text()").extract()
 
-            item = [{'mnane': mname, 'price': result, 'cname': self.name, 'cid': self.cid} for mname, result in zip(mnames, results)]
+            item = [{
+                'mnane': mname,
+                'price': result,
+                'cname': self.name,
+                'cid': self.cid
+            } for mname, result in zip(mnames, results)]
             self.price.append(item)
 
     @property
@@ -80,7 +91,8 @@ class Price:
         pages = 1
         text = await self.bare_car_price()
         dom = Selector(text=text)
-        num = dom.xpath("//div[@class='pagination mbt20']//a[last()-1]/@href").extract_first()
+        num = dom.xpath("//div[@class='pagination mbt20']//a[last()-1]/@href"
+                        ).extract_first()
         if num:
             number = num.split("=")[1].split("&")[0]
             pages = number if number else 1
@@ -88,5 +100,6 @@ class Price:
 
     async def save(self):
         # 获取并储存结果
+        print(Price.pool)
         await self.__parse()
         print(self.price)
